@@ -284,21 +284,29 @@ configure_panel() {
     cd "$PANEL_DIR"
 
     # Configurar .env solo si no se ha configurado antes
-    if grep -q "APP_URL=http://localhost" "$PANEL_DIR/.env" 2>/dev/null; then
+    if grep -q "APP_URL=http://localhost" "$PANEL_DIR/.env" 2>/dev/null || [ ! -z "$USE_SSL" ]; then
         log_info "Configurando archivo .env..."
 
-        sed -i "s|APP_URL=.*|APP_URL=https://$FQDN|g" "$PANEL_DIR/.env"
-        sed -i "s|DB_DATABASE=.*|DB_DATABASE=$DB_NAME|g" "$PANEL_DIR/.env"
-        sed -i "s|DB_USERNAME=.*|DB_USERNAME=$DB_USER|g" "$PANEL_DIR/.env"
-        sed -i "s|DB_PASSWORD=.*|DB_PASSWORD=$DB_PASS|g" "$PANEL_DIR/.env"
+        local app_scheme="https"
+        if [[ "$USE_SSL" == "n" || "$USE_SSL" == "N" ]]; then
+            app_scheme="http"
+        fi
 
-        # Configurar cola y cache con Redis
-        sed -i "s|QUEUE_CONNECTION=.*|QUEUE_CONNECTION=redis|g" "$PANEL_DIR/.env"
-        sed -i "s|CACHE_STORE=.*|CACHE_STORE=redis|g" "$PANEL_DIR/.env" 2>/dev/null || \
-        sed -i "s|CACHE_DRIVER=.*|CACHE_DRIVER=redis|g" "$PANEL_DIR/.env"
-        sed -i "s|SESSION_DRIVER=.*|SESSION_DRIVER=redis|g" "$PANEL_DIR/.env"
+        # Si ya existe .env, actualizar la URL
+        if [ -f "$PANEL_DIR/.env" ]; then
+            sed -i "s|APP_URL=.*|APP_URL=$app_scheme://$FQDN|g" "$PANEL_DIR/.env"
+            sed -i "s|DB_DATABASE=.*|DB_DATABASE=$DB_NAME|g" "$PANEL_DIR/.env"
+            sed -i "s|DB_USERNAME=.*|DB_USERNAME=$DB_USER|g" "$PANEL_DIR/.env"
+            sed -i "s|DB_PASSWORD=.*|DB_PASSWORD=$DB_PASS|g" "$PANEL_DIR/.env"
+            
+            # Configurar cola y cache con Redis
+            sed -i "s|QUEUE_CONNECTION=.*|QUEUE_CONNECTION=redis|g" "$PANEL_DIR/.env"
+            sed -i "s|CACHE_STORE=.*|CACHE_STORE=redis|g" "$PANEL_DIR/.env" 2>/dev/null || \
+            sed -i "s|CACHE_DRIVER=.*|CACHE_DRIVER=redis|g" "$PANEL_DIR/.env"
+            sed -i "s|SESSION_DRIVER=.*|SESSION_DRIVER=redis|g" "$PANEL_DIR/.env"
+        fi
 
-        log_ok "Archivo .env configurado."
+        log_ok "Archivo .env configurado con APP_URL=$app_scheme://$FQDN"
     else
         log_warn "El archivo .env ya parece estar configurado. Omitiendo."
     fi
@@ -343,12 +351,108 @@ configure_nginx() {
     local nginx_conf="/etc/nginx/sites-available/pterodactyl.conf"
     local nginx_enabled="/etc/nginx/sites-enabled/pterodactyl.conf"
 
+    # Si el usuario quiere forzar cambios (cambiar entre IP y SSL), eliminamos el conf antiguo
     if [ -f "$nginx_conf" ]; then
-        log_warn "Configuración de Nginx ya existe. Omitiendo."
-        return
+        log_warn "Configuración de Nginx existente detectada. Re-configurando para aplicar los cambios de SSL/IP..."
+        rm -f "$nginx_conf" "$nginx_enabled"
     fi
 
-    cat > "$nginx_conf" <<EOF
+    if [[ "$USE_SSL" == "n" || "$USE_SSL" == "N" ]]; then
+        # PLANTILLA SOLO POR IP (Sin SSL - Puerto 80 Directo)
+        log_info "Generando plantilla Nginx para acceso directo por IP (Puerto 80)..."
+        cat > "$nginx_conf" <<EOF
+server {
+    listen 80;
+    listen [::]:80;
+    server_name $FQDN;
+
+    root $PANEL_DIR/public;
+    index index.php index.html;
+
+    client_max_body_size 100M;
+    client_body_timeout 120s;
+
+    sendfile on;
+    tcp_nopush on;
+    tcp_nodelay on;
+    keepalive_timeout 65;
+    types_hash_max_size 2048;
+
+    include /etc/nginx/mime.types;
+    default_type application/octet-stream;
+
+    gzip on;
+    gzip_comp_level 5;
+    gzip_min_length 256;
+    gzip_proxied any;
+    gzip_vary on;
+    gzip_types
+        application/atom+xml
+        application/javascript
+        application/json
+        application/ld+json
+        application/manifest+json
+        application/rss+xml
+        application/vnd.geo+json
+        application/vnd.ms-fontobject
+        application/x-font-ttf
+        application/x-web-app-manifest+json
+        application/xhtml+xml
+        application/xml
+        font/opentype
+        image/bmp
+        image/svg+xml
+        image/x-icon
+        text/cache-manifest
+        text/css
+        text/plain
+        text/vcard
+        text/vnd.rim.location.xloc
+        text/vtt
+        text/x-component
+        text/x-cross-domain-policy;
+
+    add_header X-Content-Type-Options nosniff;
+    add_header X-XSS-Protection "1; mode=block";
+    add_header X-Robots-Tag none;
+    add_header X-Download-Options noopen;
+    add_header X-Permitted-Cross-Domain-Policies none;
+    add_header Referrer-Policy no-referrer;
+
+    location / {
+        try_files \$uri \$uri/ /index.php?\$query_string;
+    }
+
+    location ~ \.php$ {
+        fastcgi_split_path_info ^(.+\.php)(/.+)\$;
+        fastcgi_pass unix:/run/php/php8.1-fpm.sock;
+        fastcgi_index index.php;
+        include fastcgi_params;
+        fastcgi_param SCRIPT_FILENAME \$document_root\$fastcgi_script_name;
+        fastcgi_buffer_size 16k;
+        fastcgi_buffers 4 16k;
+        fastcgi_read_timeout 300;
+    }
+
+    location ~ /\.ht {
+        deny all;
+    }
+
+    location ~ /\.(?!well-known).* {
+        deny all;
+    }
+
+    location ~* \.(?:css|js|jpg|jpeg|gif|png|ico|gz|svg|svgz|ttf|otf|woff|woff2|eot)\$ {
+        expires 30d;
+        access_log off;
+        add_header Cache-Control "public";
+    }
+}
+EOF
+    else
+        # PLANTILLA CON SSL / REDIRECCIÓN
+        log_info "Generando plantilla Nginx estándar para Dominio con SSL..."
+        cat > "$nginx_conf" <<EOF
 server {
     listen 80;
     listen [::]:80;
@@ -453,6 +557,7 @@ server {
     }
 }
 EOF
+    fi
 
     ln -sf "$nginx_conf" "$nginx_enabled"
 
@@ -1228,19 +1333,28 @@ final_optimization() {
 # ======================= RESUMEN FINAL =======================
 
 print_summary() {
+    local app_scheme="https"
+    if [[ "$USE_SSL" == "n" || "$USE_SSL" == "N" ]]; then
+        app_scheme="http"
+    fi
+
     echo ""
     echo -e "${RED}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
     echo -e "${ORANGE}  🔥 INSTALACIÓN COMPLETADA - TEMA INFERNAL 🔥${NC}"
     echo -e "${RED}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
     echo ""
-    echo -e "  ${CYAN}Panel:${NC}        https://$FQDN"
+    echo -e "  ${CYAN}Panel:${NC}        $app_scheme://$FQDN"
     echo -e "  ${CYAN}Directorio:${NC}   $PANEL_DIR"
     echo -e "  ${CYAN}Base de datos:${NC} $DB_NAME (usuario: $DB_USER)"
     echo -e "  ${CYAN}DB Password:${NC}  $DB_PASS"
     echo ""
     echo -e "  ${YELLOW}Pasos pendientes manuales:${NC}"
     echo -e "  1. Crear usuario admin: ${CYAN}cd $PANEL_DIR && php artisan p:user:make${NC}"
-    echo -e "  2. Obtener SSL:         ${CYAN}certbot --nginx -d $FQDN${NC}"
+    if [[ "$USE_SSL" != "n" && "$USE_SSL" != "N" ]]; then
+        echo -e "  2. Obtener SSL:         ${CYAN}certbot --nginx -d $FQDN${NC}"
+    else
+        echo -e "  2. Obtener SSL:         ${YELLOW}[OMITIDO - Modo Solo IP sin SSL]${NC}"
+    fi
     echo -e "  3. Configurar Wings:    Copiar config.yml a $WINGS_DIR/"
     echo -e "  4. Iniciar Wings:       ${CYAN}systemctl start wings${NC}"
     echo ""
@@ -1284,11 +1398,19 @@ collect_info() {
     read -p "Dominio o IP del panel (por defecto: $FQDN): " input_fqdn
     FQDN="${input_fqdn:-$FQDN}"
 
+    read -p "¿Deseas usar Dominio con SSL? (s/n, s = SSL, n = Solo IP sin SSL, por defecto s): " input_ssl
+    USE_SSL="${input_ssl:-s}"
+
     read -p "Contraseña BD (vacío = auto-generar): " input_dbpass
     DB_PASS="$input_dbpass"
 
+    local app_scheme="https"
+    if [[ "$USE_SSL" == "n" || "$USE_SSL" == "N" ]]; then
+        app_scheme="http"
+    fi
+
     echo ""
-    log_info "Dominio: $FQDN"
+    log_info "URL del panel: $app_scheme://$FQDN"
     log_info "BD: $DB_NAME / Usuario: $DB_USER"
     echo ""
     read -p "¿Continuar con la instalación? (s/n): " confirm
