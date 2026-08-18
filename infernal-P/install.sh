@@ -1246,14 +1246,41 @@ print_summary() {
     echo ""
 }
 
+# ======================= MENÚ INTERACTIVO =======================
+
+show_menu() {
+    echo -e "${ORANGE}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
+    echo -e "${ORANGE}  🔥 SELECCIONA UNA OPCIÓN 🔥${NC}"
+    echo -e "${ORANGE}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
+    echo ""
+    echo -e "  ${RED}1)${NC} ${CYAN}Instalación COMPLETA${NC} (Pterodactyl + Wings + Tema Infernal)"
+    echo -e "     Instala todo desde cero con el tema aplicado"
+    echo ""
+    echo -e "  ${RED}2)${NC} ${CYAN}Solo Tema Infernal${NC} (fondo + efectos de fuego)"
+    echo -e "     Aplica solo el tema sobre un panel ya instalado"
+    echo ""
+    echo -e "  ${RED}3)${NC} ${CYAN}Solo Pterodactyl${NC} (sin tema infernal)"
+    echo -e "     Instala el panel + wings sin el tema visual"
+    echo ""
+    echo -e "  ${RED}4)${NC} ${CYAN}Configurar panel existente${NC} (Nginx + SSL + servicios)"
+    echo -e "     Configura servicios para un panel ya descargado"
+    echo ""
+    echo -e "  ${RED}5)${NC} ${YELLOW}Salir${NC}"
+    echo ""
+    echo -e "${ORANGE}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
+    echo ""
+    read -p "  Selecciona una opción [1-5]: " menu_option
+    echo ""
+}
+
 # ======================= RECOLECCIÓN DE DATOS =======================
 
 collect_info() {
     echo -e "${ORANGE}Configuración inicial:${NC}"
     echo ""
 
-    read -p "Dominio o IP del panel (ej: panel.miservidor.com): " input_fqdn
-    FQDN="${input_fqdn:-panel.local}"
+    read -p "Dominio o IP del panel (por defecto: $FQDN): " input_fqdn
+    FQDN="${input_fqdn:-$FQDN}"
 
     read -p "Contraseña BD (vacío = auto-generar): " input_dbpass
     DB_PASS="$input_dbpass"
@@ -1269,12 +1296,47 @@ collect_info() {
     fi
 }
 
-# ======================= MAIN =======================
+collect_info_theme_only() {
+    echo -e "${ORANGE}Configuración del tema:${NC}"
+    echo ""
 
-main() {
-    print_banner
-    check_root
-    check_debian
+    # Detectar automáticamente el directorio del panel
+    if [ -d "/var/www/pterodactyl" ] && [ -f "/var/www/pterodactyl/artisan" ]; then
+        PANEL_DIR="/var/www/pterodactyl"
+        log_ok "Panel detectado en: $PANEL_DIR"
+    else
+        read -p "Ruta del panel Pterodactyl (por defecto: /var/www/pterodactyl): " input_dir
+        PANEL_DIR="${input_dir:-/var/www/pterodactyl}"
+
+        if [ ! -f "$PANEL_DIR/artisan" ]; then
+            log_error "No se encontró el panel en $PANEL_DIR. ¿Está instalado Pterodactyl?"
+            exit 1
+        fi
+    fi
+
+    echo ""
+    echo -e "  ${CYAN}El tema Infernal incluye:${NC}"
+    echo -e "  - Fondo oscuro con gradientes de lava"
+    echo -e "  - Brasas flotantes animadas (CSS)"
+    echo -e "  - Partículas de fuego (Canvas JS)"
+    echo -e "  - Botones, cards y UI con estilo infernal"
+    echo -e "  - Scrollbar personalizada"
+    echo -e "  - Consola con texto naranja brillante"
+    echo ""
+    read -p "¿Aplicar tema completo (CSS + JS)? (s/n, por defecto s): " theme_full
+    APPLY_JS="${theme_full:-s}"
+    echo ""
+    read -p "¿Continuar con la aplicación del tema? (s/n): " confirm
+    if [[ "$confirm" != "s" && "$confirm" != "S" ]]; then
+        log_error "Operación cancelada."
+        exit 0
+    fi
+}
+
+# ======================= FLUJOS DE INSTALACIÓN =======================
+
+run_full_install() {
+    log_step "INSTALACIÓN COMPLETA: Pterodactyl + Wings + Tema Infernal"
     collect_info
 
     install_dependencies
@@ -1296,6 +1358,108 @@ main() {
     final_optimization
 
     print_summary
+}
+
+run_theme_only() {
+    log_step "SOLO TEMA INFERNAL: Aplicando fondo y efectos"
+    collect_info_theme_only
+
+    # Verificar dependencias mínimas para inyectar CSS/JS
+    if ! command -v php >/dev/null 2>&1; then
+        log_warn "PHP no detectado. Instalando PHP mínimo para limpiar caché..."
+        install_dependencies
+        install_php
+    fi
+
+    install_infernal_theme
+    final_optimization
+
+    echo ""
+    echo -e "${RED}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
+    echo -e "${ORANGE}  🔥 TEMA INFERNAL APLICADO CORRECTAMENTE 🔥${NC}"
+    echo -e "${RED}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
+    echo ""
+    echo -e "  ${CYAN}Panel:${NC}      $PANEL_DIR"
+    echo -e "  ${CYAN}CSS:${NC}        $PANEL_DIR/public/themes/pterodactyl/css/infernal.css"
+    echo -e "  ${CYAN}JS:${NC}         $PANEL_DIR/public/themes/pterodactyl/js/infernal.js"
+    echo ""
+    echo -e "  ${GREEN}Recarga tu panel en el navegador para ver el tema.${NC}"
+    echo ""
+}
+
+run_panel_only() {
+    log_step "SOLO PTERODACTYL: Panel + Wings (sin tema)"
+    collect_info
+
+    install_dependencies
+    install_php
+    install_database
+    configure_database
+    install_redis
+    install_composer
+    install_panel
+    configure_panel
+    install_nginx
+    configure_nginx
+    install_ssl
+    setup_panel_service
+    setup_cron
+    install_docker
+    install_wings
+    final_optimization
+
+    print_summary
+}
+
+run_configure_only() {
+    log_step "CONFIGURAR PANEL EXISTENTE: Nginx + SSL + Servicios"
+    collect_info
+
+    if [ ! -d "$PANEL_DIR" ] || [ ! -f "$PANEL_DIR/artisan" ]; then
+        log_error "No se encontró el panel en $PANEL_DIR. Instala el panel primero."
+        exit 1
+    fi
+
+    install_nginx
+    configure_nginx
+    install_ssl
+    setup_panel_service
+    setup_cron
+    final_optimization
+
+    print_summary
+}
+
+# ======================= MAIN =======================
+
+main() {
+    print_banner
+    check_root
+    check_debian
+    show_menu
+
+    case "$menu_option" in
+        1)
+            run_full_install
+            ;;
+        2)
+            run_theme_only
+            ;;
+        3)
+            run_panel_only
+            ;;
+        4)
+            run_configure_only
+            ;;
+        5)
+            log_info "Saliendo... ¡Hasta pronto! 🔥"
+            exit 0
+            ;;
+        *)
+            log_error "Opción no válida. Selecciona 1-5."
+            exit 1
+            ;;
+    esac
 }
 
 main "$@"
