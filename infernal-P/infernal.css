@@ -7,23 +7,23 @@
 @import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Ubuntu+Mono:wght@400;700&display=swap');
 
 :root {
-    --infernal-bg: #0d0100;
-    --infernal-dark: #160401;
-    --infernal-darker: #080000;
-    --infernal-red: #ff3300;
+    --infernal-bg: #1c0201; /* Fondo rojo Nether profundo */
+    --infernal-dark: #2f0401; /* Magma oscuro */
+    --infernal-darker: #130000; /* Carbón Nether */
+    --infernal-red: #ff2200;
     --infernal-orange: #ff6600;
     --infernal-yellow: #ffaa00;
-    --infernal-lava: #cc2200;
-    --infernal-ember: #ff4400;
-    --infernal-text: #ffcc88;
-    --infernal-text-bright: #ffe0b0;
-    --infernal-glow: rgba(255, 68, 0, 0.6);
-    --infernal-border: rgba(255, 102, 0, 0.35);
-    --infernal-card: rgba(18, 4, 1, 0.94);
-    --infernal-card-hover: rgba(32, 8, 2, 0.98);
-    --infernal-header: rgba(10, 0, 0, 0.98);
-    --infernal-input: rgba(15, 3, 1, 0.85);
-    --infernal-overlay: rgba(10, 0, 0, 0.97);
+    --infernal-lava: #cc1100;
+    --infernal-ember: #ff3300;
+    --infernal-text: #ffddaa;
+    --infernal-text-bright: #fff0d0;
+    --infernal-glow: rgba(255, 34, 0, 0.7);
+    --infernal-border: rgba(255, 68, 0, 0.45);
+    --infernal-card: rgba(26, 4, 2, 0.95); /* Tarjetas estilo ladrillos del Nether oscuros */
+    --infernal-card-hover: rgba(45, 8, 4, 0.98);
+    --infernal-header: rgba(30, 2, 1, 0.99); /* Cabecera roja nítida */
+    --infernal-input: rgba(20, 2, 1, 0.9);
+    --infernal-overlay: rgba(20, 1, 1, 0.98);
 }
 
 /* ============================================================
@@ -53,11 +53,11 @@ section,
 .ServerDetailKeysContainer___class {
     background-color: var(--infernal-bg) !important;
     background-image:
-        radial-gradient(ellipse at 15% 85%, rgba(204, 34, 0, 0.22) 0%, transparent 55%),
-        radial-gradient(ellipse at 85% 15%, rgba(255, 68, 0, 0.18) 0%, transparent 55%),
-        radial-gradient(ellipse at 50% 50%, rgba(255, 102, 0, 0.12) 0%, transparent 65%),
-        radial-gradient(ellipse at 35% 45%, rgba(255, 50, 0, 0.08) 0%, transparent 45%),
-        linear-gradient(180deg, #0d0100 0%, #160401 35%, #1c0501 50%, #120300 75%, #080000 100%) !important;
+        radial-gradient(ellipse at 15% 85%, rgba(255, 34, 0, 0.3) 0%, transparent 55%),
+        radial-gradient(ellipse at 85% 15%, rgba(255, 68, 0, 0.25) 0%, transparent 55%),
+        radial-gradient(ellipse at 50% 50%, rgba(255, 102, 0, 0.18) 0%, transparent 65%),
+        radial-gradient(ellipse at 35% 45%, rgba(255, 34, 0, 0.15) 0%, transparent 45%),
+        linear-gradient(180deg, #130000 0%, #220401 30%, #2d0502 50%, #1a0201 75%, #0e0000 100%) !important;
     background-attachment: fixed !important;
     background-size: 100% 100% !important;
     color: var(--infernal-text) !important;
@@ -518,4 +518,51 @@ body::before {
     0% { background-position: 0% 0%; }
     50% { background-position: 0% -100%; }
     100% { background-position: 0% -200%; }
+}
+
+/* ============================================================
+   9. PERSONALIZACIONES ESPECÍFICAS DE CABECERAS Y COLOR DE FONDO
+   ============================================================ */
+
+/* Forzar la barra de navegación de arriba (Client & Admin Headers) a rojo magma */
+nav,
+header,
+.main-header,
+.navbar,
+div[class*="NavigationBar"],
+div[class*="Navigationbar"],
+div[class*="styles__NavigationBar"],
+div[class*="styles__Navigationbar"] {
+    background-color: var(--infernal-header) !important;
+    background-image: linear-gradient(90deg, #3d0501 0%, #1e0201 50%, #3d0501 100%) !important;
+    border-bottom: 2px solid var(--infernal-red) !important;
+    box-shadow: 0 4px 20px rgba(255, 34, 0, 0.45) !important;
+}
+
+/* Forzar a que cualquier fondo gris de Tailwind en React pase a ser el rojo carmesí profundo */
+div[class*="MainContainer"],
+div[class*="DashboardContainer"],
+div[class*="styles__MainContainer"],
+main,
+section,
+.content-wrapper {
+    background-color: var(--infernal-bg) !important;
+}
+
+/* Enlaces e iconos dentro de la barra de navegación superior */
+div[class*="NavigationBar"] a,
+div[class*="Navigationbar"] a,
+div[class*="NavigationBar"] svg,
+div[class*="Navigationbar"] svg,
+nav a,
+nav svg {
+    color: var(--infernal-text-bright) !important;
+    text-shadow: 0 0 8px rgba(255, 102, 0, 0.4) !important;
+}
+
+div[class*="NavigationBar"] a:hover,
+div[class*="Navigationbar"] a:hover,
+nav a:hover {
+    color: var(--infernal-yellow) !important;
+    text-shadow: 0 0 12px var(--infernal-glow) !important;
 }
