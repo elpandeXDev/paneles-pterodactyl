@@ -1171,11 +1171,13 @@ JSEOF
 inject_css_into_templates() {
     log_info "Inyectando CSS y JS en las plantillas Blade..."
 
-    # Buscar el layout principal y añadir el CSS/JS
+    # Buscar el layout principal y añadir el CSS/JS (incluye el wrapper de React v1.x y auth)
     local layouts=(
         "$PANEL_DIR/resources/views/layouts/admin.blade.php"
         "$PANEL_DIR/resources/views/layouts/base.blade.php"
         "$PANEL_DIR/resources/views/layouts/app.blade.php"
+        "$PANEL_DIR/resources/views/templates/wrapper.blade.php"
+        "$PANEL_DIR/resources/views/templates/auth.blade.php"
     )
 
     for layout in "${layouts[@]}"; do
