@@ -333,6 +333,13 @@ configure_panel() {
 install_nginx() {
     log_step "PASO 7: Verificando Nginx"
 
+    # Detener Apache2 si está instalado y activo (causa común de fallo de puerto 80 en Debian)
+    if systemctl is-active --quiet apache2 2>/dev/null; then
+        log_info "Apache2 detectado activo en el puerto 80. Deteniendo y desactivando Apache2..."
+        systemctl stop apache2 2>/dev/null || true
+        systemctl disable apache2 2>/dev/null || true
+    fi
+
     if command -v nginx >/dev/null 2>&1; then
         log_ok "Nginx ya está instalado."
     else
@@ -564,9 +571,19 @@ EOF
     # Eliminar sitio por defecto si existe
     rm -f /etc/nginx/sites-enabled/default
 
-    # Test y reload
-    nginx -t 2>/dev/null && systemctl reload nginx
-    log_ok "Nginx configurado para $FQDN"
+    # Test de configuración
+    if nginx -t 2>/dev/null; then
+        # Si Nginx está corriendo, recargar; de lo contrario, iniciar o reiniciar
+        if systemctl is-active --quiet nginx; then
+            systemctl reload nginx 2>/dev/null || systemctl restart nginx
+        else
+            systemctl start nginx
+        fi
+        log_ok "Nginx configurado y activo para $FQDN"
+    else
+        log_error "La configuración de Nginx tiene errores de sintaxis. Forzando reinicio para diagnóstico..."
+        systemctl restart nginx
+    fi
 }
 
 # ======================= PASO 8: SSL (Certbot) =======================
