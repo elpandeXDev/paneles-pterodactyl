@@ -1,48 +1,455 @@
 /* ============================================================
-   TEMA INFERNAL MINECRAFT - Pterodactyl Panel
-   Estilo: Fuego, lava, nether, oscuro con detalles rojos
-   Archivo standalone para instalación manual
-   ============================================================
-   
-   Instalación manual:
-   1. Copia este archivo a: /var/www/pterodactyl/public/themes/pterodactyl/css/infernal.css
-   2. Añade en el <head> de tus plantillas blade:
-      <link rel="stylesheet" href="/themes/pterodactyl/css/infernal.css">
-   3. Limpia caché: php artisan view:clear && php artisan config:clear
+   🔥 TEMA INFERNAL MINECRAFT - Pterodactyl Panel v1.15+
+   Estilo: Fuego, lava, nether, oscuro con detalles rojos/naranjas
+   Compatible con React, Blade, Tailwind CSS y Vue
    ============================================================ */
 
-@import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Ubuntu+Mono:wght@400;700&display=swap');
 
 :root {
-    --infernal-bg: #0a0000;
-    --infernal-dark: #1a0500;
+    --infernal-bg: #0d0100;
+    --infernal-dark: #160401;
+    --infernal-darker: #080000;
     --infernal-red: #ff3300;
     --infernal-orange: #ff6600;
     --infernal-yellow: #ffaa00;
     --infernal-lava: #cc2200;
     --infernal-ember: #ff4400;
     --infernal-text: #ffcc88;
+    --infernal-text-bright: #ffe0b0;
     --infernal-glow: rgba(255, 68, 0, 0.6);
-    --infernal-border: rgba(255, 102, 0, 0.3);
-    --infernal-card: rgba(20, 5, 0, 0.92);
-    --infernal-header: rgba(10, 0, 0, 0.97);
+    --infernal-border: rgba(255, 102, 0, 0.35);
+    --infernal-card: rgba(18, 4, 1, 0.94);
+    --infernal-card-hover: rgba(32, 8, 2, 0.98);
+    --infernal-header: rgba(10, 0, 0, 0.98);
+    --infernal-input: rgba(15, 3, 1, 0.85);
+    --infernal-overlay: rgba(10, 0, 0, 0.97);
 }
 
-/* === FONDO ANIMADO DE LAVA === */
-body {
-    background: var(--infernal-bg) !important;
+/* ============================================================
+   1. FORCE FONDOS AL 100% (Anula cualquier contenedor React/Tailwind)
+   ============================================================ */
+html,
+body,
+#app,
+#root,
+div[id="app"],
+div[id="root"],
+div[class*="App"],
+div[class*="app"],
+div[class*="main"],
+div[class*="layout"],
+div[class*="Wrapper"],
+div[class*="wrapper"],
+main,
+section,
+.content-wrapper,
+.content,
+.page-wrapper,
+.wrapper,
+.layout,
+.layout-wrapper,
+.ServerConsoleContainer___class,
+.ServerDetailKeysContainer___class {
+    background-color: var(--infernal-bg) !important;
     background-image:
-        radial-gradient(ellipse at 20% 80%, rgba(204, 34, 0, 0.15) 0%, transparent 50%),
-        radial-gradient(ellipse at 80% 20%, rgba(255, 68, 0, 0.12) 0%, transparent 50%),
-        radial-gradient(ellipse at 50% 50%, rgba(255, 102, 0, 0.08) 0%, transparent 60%),
-        linear-gradient(180deg, #0a0000 0%, #1a0500 50%, #0a0000 100%) !important;
+        radial-gradient(ellipse at 15% 85%, rgba(204, 34, 0, 0.22) 0%, transparent 55%),
+        radial-gradient(ellipse at 85% 15%, rgba(255, 68, 0, 0.18) 0%, transparent 55%),
+        radial-gradient(ellipse at 50% 50%, rgba(255, 102, 0, 0.12) 0%, transparent 65%),
+        radial-gradient(ellipse at 35% 45%, rgba(255, 50, 0, 0.08) 0%, transparent 45%),
+        linear-gradient(180deg, #0d0100 0%, #160401 35%, #1c0501 50%, #120300 75%, #080000 100%) !important;
     background-attachment: fixed !important;
     background-size: 100% 100% !important;
     color: var(--infernal-text) !important;
-    font-family: 'Segoe UI', Tahoma, sans-serif !important;
+    min-height: 100vh !important;
 }
 
-/* Efecto de brasas flotantes */
+/* ============================================================
+   2. ELIMINACIÓN AGRESIVA DE COLORES DE FONDO TAILWIND (Grisáceos)
+   ============================================================ */
+.bg-neutral-50, .bg-neutral-100, .bg-neutral-200, .bg-neutral-300,
+.bg-neutral-400, .bg-neutral-500, .bg-neutral-600, .bg-neutral-700,
+.bg-neutral-800, .bg-neutral-900, .bg-neutral-950,
+.bg-gray-50, .bg-gray-100, .bg-gray-200, .bg-gray-300,
+.bg-gray-400, .bg-gray-500, .bg-gray-600, .bg-gray-700,
+.bg-gray-800, .bg-gray-900, .bg-gray-950,
+.bg-slate-50, .bg-slate-100, .bg-slate-200, .bg-slate-300,
+.bg-slate-400, .bg-slate-500, .bg-slate-600, .bg-slate-700,
+.bg-slate-800, .bg-slate-900, .bg-slate-950,
+.bg-zinc-50, .bg-zinc-100, .bg-zinc-200, .bg-zinc-300,
+.bg-zinc-400, .bg-zinc-500, .bg-zinc-600, .bg-zinc-700,
+.bg-zinc-800, .bg-zinc-900, .bg-zinc-950,
+.bg-stone-50, .bg-stone-100, .bg-stone-200, .bg-stone-300,
+.bg-stone-400, .bg-stone-500, .bg-stone-600, .bg-stone-700,
+.bg-stone-800, .bg-stone-900, .bg-stone-950,
+.bg-white, .bg-black,
+.bg-transparent,
+div[class*="bg-neutral-"],
+div[class*="bg-gray-"],
+div[class*="bg-slate-"],
+div[class*="bg-zinc-"],
+div[class*="bg-stone-"],
+div[class*="bg-black"],
+div[class*="bg-white"],
+span[class*="bg-neutral-"],
+span[class*="bg-gray-"],
+button[class*="bg-neutral-"],
+button[class*="bg-gray-"],
+aside[class*="bg-"],
+header[class*="bg-"],
+footer[class*="bg-"] {
+    background-color: var(--infernal-card) !important;
+    border-color: var(--infernal-border) !important;
+}
+
+/* Fondos con hover */
+.hover\:bg-neutral-50:hover, .hover\:bg-neutral-100:hover,
+.hover\:bg-neutral-200:hover, .hover\:bg-neutral-300:hover,
+.hover\:bg-neutral-400:hover, .hover\:bg-neutral-500:hover,
+.hover\:bg-neutral-600:hover, .hover\:bg-neutral-700:hover,
+.hover\:bg-neutral-800:hover, .hover\:bg-neutral-900:hover,
+.hover\:bg-neutral-950:hover,
+.hover\:bg-gray-50:hover, .hover\:bg-gray-100:hover,
+.hover\:bg-gray-200:hover, .hover\:bg-gray-300:hover,
+.hover\:bg-gray-400:hover, .hover\:bg-gray-500:hover,
+.hover\:bg-gray-600:hover, .hover\:bg-gray-700:hover,
+.hover\:bg-gray-800:hover, .hover\:bg-gray-900:hover,
+.hover\:bg-white:hover {
+    background-color: var(--infernal-card-hover) !important;
+}
+
+/* Modales y Overlays */
+div[class*="Modal"],
+div[class*="modal"],
+div[class*="Dialog"],
+div[class*="dialog"],
+div[class*="Overlay"],
+div[class*="overlay"] {
+    background-color: var(--infernal-overlay) !important;
+    border: 1px solid var(--infernal-orange) !important;
+    box-shadow: 0 0 35px var(--infernal-glow) !important;
+}
+
+/* ============================================================
+   3. BARRA LATERAL (SIDEBAR) & NAVEGACIÓN
+   ============================================================ */
+aside,
+div[class*="Sidebar"],
+div[class*="sidebar"],
+.main-sidebar,
+.sidebar {
+    background-color: var(--infernal-darker) !important;
+    border-right: 2px solid var(--infernal-red) !important;
+    box-shadow: 5px 0 25px rgba(255, 51, 0, 0.15) !important;
+}
+
+/* Enlaces del Sidebar */
+aside a,
+.sidebar a,
+div[class*="Sidebar"] a,
+div[class*="sidebar"] a,
+.sidebar-menu a {
+    color: var(--infernal-text) !important;
+    border-left: 3px solid transparent !important;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+}
+
+/* Enlaces activos e hover */
+aside a:hover,
+.sidebar a:hover,
+div[class*="sidebar"] a:hover,
+div[class*="Sidebar"] a[class*="active"],
+div[class*="sidebar"] a[class*="active"],
+.sidebar-menu li.active > a,
+.sidebar-menu li:hover > a {
+    background: linear-gradient(90deg, rgba(255, 51, 0, 0.18) 0%, rgba(255, 102, 0, 0.03) 100%) !important;
+    color: var(--infernal-yellow) !important;
+    border-left: 3px solid var(--infernal-orange) !important;
+    text-shadow: 0 0 8px var(--infernal-glow) !important;
+}
+
+/* Iconos de la navegación */
+aside svg,
+.sidebar svg,
+div[class*="sidebar"] svg {
+    color: var(--infernal-orange) !important;
+    filter: drop-shadow(0 0 4px rgba(255, 102, 0, 0.5)) !important;
+    transition: all 0.3s ease !important;
+}
+
+aside a:hover svg,
+.sidebar a:hover svg {
+    color: var(--infernal-yellow) !important;
+    transform: scale(1.1) !important;
+    filter: drop-shadow(0 0 8px var(--infernal-glow)) !important;
+}
+
+/* ============================================================
+   4. CARDS, CONTENEDORES Y TABLAS
+   ============================================================ */
+div[class*="Card"],
+div[class*="card"],
+div[class*="Box"],
+div[class*="box"],
+div[class*="Panel"],
+div[class*="panel"],
+.server-card,
+.server-box,
+.card,
+.panel,
+.box,
+.well {
+    background-color: var(--infernal-card) !important;
+    border: 1px solid var(--infernal-border) !important;
+    border-radius: 8px !important;
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.55), 0 0 15px rgba(255, 68, 0, 0.05) !important;
+    backdrop-filter: blur(8px) !important;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+}
+
+div[class*="Card"]:hover,
+div[class*="card"]:hover,
+.server-card:hover,
+.card:hover,
+.panel:hover {
+    border-color: var(--infernal-orange) !important;
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.65), 0 0 25px rgba(255, 102, 0, 0.2) !important;
+    transform: translateY(-2px) !important;
+}
+
+/* Headers de Cards */
+div[class*="CardHeader"],
+div[class*="card-header"],
+div[class*="panel-heading"],
+.card-header,
+.panel-heading,
+.box-header {
+    background: linear-gradient(135deg, rgba(255, 51, 0, 0.12) 0%, rgba(255, 102, 0, 0.02) 100%) !important;
+    border-bottom: 1px solid var(--infernal-border) !important;
+    color: var(--infernal-orange) !important;
+}
+
+/* Tablas */
+table,
+.table {
+    color: var(--infernal-text) !important;
+}
+
+th,
+thead th,
+.table thead th {
+    background-color: rgba(255, 51, 0, 0.1) !important;
+    border-bottom: 2px solid var(--infernal-red) !important;
+    color: var(--infernal-orange) !important;
+}
+
+td,
+tbody td,
+.table tbody td {
+    border-top: 1px solid var(--infernal-border) !important;
+    background-color: transparent !important;
+}
+
+tr:hover td {
+    background-color: rgba(255, 68, 0, 0.08) !important;
+}
+
+/* ============================================================
+   5. BOTONES (Fuego & Magma Gradientes)
+   ============================================================ */
+button,
+.btn,
+a[class*="Button"],
+button[class*="Button"] {
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+}
+
+/* Botones Primarios/Success (Estilo Magma Activa) */
+button[class*="primary"],
+button[class*="success"],
+.btn-primary,
+.btn-success,
+a[class*="Button"][class*="primary"],
+div[class*="Button"][class*="primary"] {
+    background: linear-gradient(135deg, var(--infernal-red) 0%, var(--infernal-orange) 50%, var(--infernal-yellow) 100%) !important;
+    border: 1px solid var(--infernal-orange) !important;
+    color: #ffffff !important;
+    font-weight: 600 !important;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.6) !important;
+    box-shadow: 0 0 12px rgba(255, 68, 0, 0.35) !important;
+}
+
+button[class*="primary"]:hover,
+button[class*="success"]:hover,
+.btn-primary:hover,
+.btn-success:hover {
+    background: linear-gradient(135deg, var(--infernal-orange) 0%, var(--infernal-yellow) 100%) !important;
+    box-shadow: 0 0 22px rgba(255, 102, 0, 0.65) !important;
+    transform: translateY(-1px) !important;
+}
+
+/* Botones Secundarios/Default (Estilo Piedra del Nether) */
+button[class*="secondary"],
+button[class*="default"],
+.btn-secondary,
+.btn-default {
+    background-color: var(--infernal-dark) !important;
+    border: 1px solid var(--infernal-border) !important;
+    color: var(--infernal-text) !important;
+}
+
+button[class*="secondary"]:hover,
+button[class*="default"]:hover:not(:disabled) {
+    background-color: rgba(50, 12, 3, 0.9) !important;
+    border-color: var(--infernal-orange) !important;
+    color: var(--infernal-yellow) !important;
+}
+
+/* Botones de Peligro (Estilo Lava Ardiendo) */
+button[class*="danger"],
+.btn-danger {
+    background: linear-gradient(135deg, #990000 0%, #ff0000 100%) !important;
+    border: 1px solid #ff3333 !important;
+    color: #ffffff !important;
+    box-shadow: 0 0 12px rgba(204, 0, 0, 0.4) !important;
+}
+
+button[class*="danger"]:hover {
+    background: linear-gradient(135deg, #cc0000 0%, #ff4444 100%) !important;
+    box-shadow: 0 0 22px rgba(255, 0, 0, 0.6) !important;
+}
+
+/* ============================================================
+   6. FORMULARIOS, INPUTS Y CAJAS DE TEXTO
+   ============================================================ */
+input,
+textarea,
+select,
+.form-control,
+div[class*="Input"],
+input[class*="Input"] {
+    background-color: var(--infernal-input) !important;
+    border: 1px solid var(--infernal-border) !important;
+    color: var(--infernal-text-bright) !important;
+    border-radius: 6px !important;
+    box-shadow: inset 0 2px 8px rgba(0, 0, 0, 0.6) !important;
+    transition: all 0.3s ease !important;
+}
+
+input:focus,
+textarea:focus,
+select:focus,
+div[class*="Input"]:focus-within {
+    border-color: var(--infernal-orange) !important;
+    box-shadow: inset 0 2px 8px rgba(0, 0, 0, 0.6), 0 0 12px rgba(255, 102, 0, 0.35) !important;
+    background-color: rgba(24, 5, 1, 0.95) !important;
+}
+
+input::placeholder,
+textarea::placeholder {
+    color: rgba(255, 204, 136, 0.38) !important;
+}
+
+/* ============================================================
+   7. CONSOLA DE SERVIDORES Y TERMINALES (Estilo Código Nether)
+   ============================================================ */
+.console-output,
+.terminal-output,
+pre,
+div[class*="Terminal"],
+div[class*="ConsoleViewer"] {
+    background-color: #000000 !important;
+    color: var(--infernal-orange) !important;
+    border: 2px solid var(--infernal-border) !important;
+    font-family: 'Ubuntu Mono', 'Consolas', monospace !important;
+    text-shadow: 0 0 6px rgba(255, 102, 0, 0.45) !important;
+    box-shadow: inset 0 4px 20px rgba(0, 0, 0, 0.9) !important;
+}
+
+/* Estilizar líneas individuales de la consola si es React */
+div[class*="Terminal"] > div,
+div[class*="ConsoleViewer"] > div {
+    font-family: 'Ubuntu Mono', 'Consolas', monospace !important;
+}
+
+/* Gráficos del estado del Servidor (CPU, RAM, Disco) */
+canvas[id*="chart"],
+div[class*="ChartContainer"] {
+    filter: hue-rotate(330deg) saturate(1.8) contrast(1.1) !important;
+}
+
+/* ============================================================
+   8. DETALLES FINALES, ANIMACIONES Y SCROLLBAR
+   ============================================================ */
+/* Scrollbar */
+::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+}
+
+::-webkit-scrollbar-track {
+    background-color: var(--infernal-darker) !important;
+}
+
+::-webkit-scrollbar-thumb {
+    background: linear-gradient(180deg, var(--infernal-red) 0%, var(--infernal-orange) 50%, var(--infernal-yellow) 100%) !important;
+    border-radius: 5px !important;
+    border: 1px solid var(--infernal-dark) !important;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: linear-gradient(180deg, var(--infernal-orange) 0%, var(--infernal-yellow) 100%) !important;
+}
+
+/* Textos de Títulos y Enlaces */
+h1, h2, h3, h4, h5, h6,
+div[class*="Title"],
+span[class*="Title"] {
+    color: var(--infernal-orange) !important;
+    text-shadow: 0 0 8px rgba(255, 102, 0, 0.35) !important;
+    font-weight: 700 !important;
+}
+
+a {
+    color: var(--infernal-orange) !important;
+    transition: all 0.3s ease !important;
+}
+
+a:hover {
+    color: var(--infernal-yellow) !important;
+    text-shadow: 0 0 10px var(--infernal-glow) !important;
+}
+
+/* Icono de fuego en el login y logo */
+div[class*="LoginForm"]::before,
+div[class*="LoginContainer"]::before {
+    content: "🔥";
+    font-size: 48px;
+    display: block;
+    text-align: center;
+    margin-bottom: 15px;
+    filter: drop-shadow(0 0 12px var(--infernal-glow));
+    animation: infernal-pulse 2s ease-in-out infinite;
+}
+
+/* Animación de pulso */
+@keyframes infernal-pulse {
+    0%, 100% {
+        transform: scale(1);
+        filter: drop-shadow(0 0 10px rgba(255, 68, 0, 0.4));
+    }
+    50% {
+        transform: scale(1.08);
+        filter: drop-shadow(0 0 22px rgba(255, 102, 0, 0.85));
+    }
+}
+
+button[class*="primary"],
+.btn-primary {
+    animation: infernal-pulse 3.5s ease-in-out infinite;
+}
+
+/* Brasas flotantes de fondo */
 body::before {
     content: '';
     position: fixed;
@@ -58,390 +465,20 @@ body::before {
         radial-gradient(2px 2px at 85% 60%, rgba(255, 80, 0, 0.6), transparent),
         radial-gradient(1px 1px at 15% 80%, rgba(255, 200, 0, 0.4), transparent),
         radial-gradient(2px 2px at 60% 10%, rgba(255, 50, 0, 0.7), transparent),
-        radial-gradient(1px 1px at 90% 90%, rgba(255, 150, 0, 0.5), transparent);
+        radial-gradient(1px 1px at 90% 90%, rgba(255, 150, 0, 0.5), transparent),
+        radial-gradient(3px 3px at 25% 55%, rgba(255, 60, 0, 0.4), transparent),
+        radial-gradient(1px 1px at 45% 85%, rgba(255, 180, 0, 0.5), transparent),
+        radial-gradient(2px 2px at 75% 15%, rgba(255, 90, 0, 0.6), transparent),
+        radial-gradient(1px 1px at 5% 50%, rgba(255, 140, 0, 0.5), transparent);
     background-size: 200% 200%;
-    animation: infernal-embers 20s linear infinite;
+    animation: infernal-embers 25s linear infinite;
     pointer-events: none;
     z-index: 0;
-    opacity: 0.6;
+    opacity: 0.7;
 }
 
 @keyframes infernal-embers {
     0% { background-position: 0% 0%; }
+    50% { background-position: 0% -100%; }
     100% { background-position: 0% -200%; }
-}
-
-/* === HEADER / NAVBAR === */
-.navbar, .header, .main-header {
-    background: var(--infernal-header) !important;
-    border-bottom: 2px solid var(--infernal-red) !important;
-    box-shadow: 0 0 20px rgba(255, 51, 0, 0.3) !important;
-}
-
-.navbar-brand, .logo-text, .header .logo {
-    color: var(--infernal-orange) !important;
-    text-shadow: 0 0 10px var(--infernal-glow) !important;
-    font-weight: bold !important;
-}
-
-.navbar-nav > li > a, .nav-link {
-    color: var(--infernal-text) !important;
-    transition: all 0.3s ease !important;
-}
-
-.navbar-nav > li > a:hover, .nav-link:hover {
-    color: var(--infernal-yellow) !important;
-    text-shadow: 0 0 8px var(--infernal-glow) !important;
-}
-
-/* === CARDS / CONTENEDORES === */
-.card, .panel, .box, .well {
-    background: var(--infernal-card) !important;
-    border: 1px solid var(--infernal-border) !important;
-    border-radius: 8px !important;
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5), 0 0 10px rgba(255, 68, 0, 0.1) !important;
-    backdrop-filter: blur(5px) !important;
-    transition: all 0.3s ease !important;
-}
-
-.card:hover, .panel:hover {
-    border-color: var(--infernal-orange) !important;
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.6), 0 0 20px rgba(255, 68, 0, 0.2) !important;
-}
-
-.card-header, .panel-heading, .box-header {
-    background: linear-gradient(135deg, rgba(255, 51, 0, 0.15), rgba(255, 102, 0, 0.05)) !important;
-    border-bottom: 1px solid var(--infernal-border) !important;
-    color: var(--infernal-orange) !important;
-    text-shadow: 0 0 5px var(--infernal-glow) !important;
-}
-
-.card-title, .panel-title {
-    color: var(--infernal-yellow) !important;
-}
-
-/* === BOTONES === */
-.btn-primary, .btn-success {
-    background: linear-gradient(135deg, var(--infernal-red), var(--infernal-orange)) !important;
-    border: 1px solid var(--infernal-orange) !important;
-    color: #fff !important;
-    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5) !important;
-    box-shadow: 0 0 10px rgba(255, 68, 0, 0.3) !important;
-    transition: all 0.3s ease !important;
-}
-
-.btn-primary:hover, .btn-success:hover {
-    background: linear-gradient(135deg, var(--infernal-orange), var(--infernal-yellow)) !important;
-    box-shadow: 0 0 20px rgba(255, 102, 0, 0.5) !important;
-    transform: translateY(-1px) !important;
-}
-
-.btn-default, .btn-secondary {
-    background: rgba(20, 5, 0, 0.8) !important;
-    border: 1px solid var(--infernal-border) !important;
-    color: var(--infernal-text) !important;
-}
-
-.btn-default:hover, .btn-secondary:hover {
-    background: rgba(40, 10, 0, 0.9) !important;
-    border-color: var(--infernal-orange) !important;
-    color: var(--infernal-yellow) !important;
-}
-
-.btn-danger {
-    background: linear-gradient(135deg, #cc0000, #ff0000) !important;
-    border: 1px solid #ff3333 !important;
-    box-shadow: 0 0 10px rgba(204, 0, 0, 0.4) !important;
-}
-
-/* === TABLAS === */
-.table, .table-striped {
-    color: var(--infernal-text) !important;
-}
-
-.table > thead > tr > th, .table-striped > thead > tr > th {
-    background: rgba(255, 51, 0, 0.1) !important;
-    border-bottom: 2px solid var(--infernal-red) !important;
-    color: var(--infernal-orange) !important;
-}
-
-.table-striped > tbody > tr:nth-of-type(odd) {
-    background: rgba(20, 5, 0, 0.5) !important;
-}
-
-.table-striped > tbody > tr:nth-of-type(even) {
-    background: rgba(10, 0, 0, 0.3) !important;
-}
-
-.table > tbody > tr > td {
-    border-top: 1px solid var(--infernal-border) !important;
-}
-
-.table-hover > tbody > tr:hover {
-    background: rgba(255, 68, 0, 0.1) !important;
-}
-
-/* === FORMULARIOS === */
-input[type="text"], input[type="email"], input[type="password"],
-input[type="search"], input[type="number"], textarea, select,
-.form-control {
-    background: rgba(10, 0, 0, 0.7) !important;
-    border: 1px solid var(--infernal-border) !important;
-    color: var(--infernal-text) !important;
-    border-radius: 4px !important;
-    transition: all 0.3s ease !important;
-}
-
-input:focus, textarea:focus, select:focus, .form-control:focus {
-    border-color: var(--infernal-orange) !important;
-    box-shadow: 0 0 10px rgba(255, 102, 0, 0.3) !important;
-    background: rgba(20, 5, 0, 0.8) !important;
-}
-
-input::placeholder, textarea::placeholder {
-    color: rgba(255, 204, 136, 0.4) !important;
-}
-
-/* === BADGES / ETIQUETAS === */
-.badge, .label {
-    background: var(--infernal-red) !important;
-    color: #fff !important;
-    text-shadow: 0 1px 1px rgba(0, 0, 0, 0.5) !important;
-}
-
-.badge-success, .label-success {
-    background: linear-gradient(135deg, #ff6600, #ffaa00) !important;
-}
-
-.badge-danger, .label-danger {
-    background: linear-gradient(135deg, #cc0000, #ff0000) !important;
-}
-
-/* === ALERTAS === */
-.alert {
-    border-radius: 6px !important;
-    backdrop-filter: blur(5px) !important;
-}
-
-.alert-info {
-    background: rgba(255, 102, 0, 0.15) !important;
-    border: 1px solid var(--infernal-orange) !important;
-    color: var(--infernal-yellow) !important;
-}
-
-.alert-success {
-    background: rgba(0, 200, 0, 0.1) !important;
-    border: 1px solid #00cc44 !important;
-    color: #66ff99 !important;
-}
-
-.alert-danger, .alert-error {
-    background: rgba(204, 0, 0, 0.15) !important;
-    border: 1px solid #ff0000 !important;
-    color: #ff6666 !important;
-}
-
-/* === SIDEBAR === */
-.sidebar, .main-sidebar {
-    background: var(--infernal-dark) !important;
-    border-right: 1px solid var(--infernal-border) !important;
-}
-
-.sidebar-menu > li > a, .sidebar a {
-    color: var(--infernal-text) !important;
-    transition: all 0.3s ease !important;
-}
-
-.sidebar-menu > li > a:hover, .sidebar a:hover {
-    background: rgba(255, 68, 0, 0.15) !important;
-    color: var(--infernal-yellow) !important;
-    border-left: 3px solid var(--infernal-orange) !important;
-}
-
-.sidebar-menu > li.active > a, .sidebar .active a {
-    background: rgba(255, 51, 0, 0.2) !important;
-    color: var(--infernal-orange) !important;
-    border-left: 3px solid var(--infernal-red) !important;
-}
-
-/* === FOOTER === */
-footer, .main-footer {
-    background: var(--infernal-header) !important;
-    border-top: 2px solid var(--infernal-red) !important;
-    color: var(--infernal-text) !important;
-}
-
-/* === SCROLLBAR === */
-::-webkit-scrollbar {
-    width: 10px;
-    height: 10px;
-}
-
-::-webkit-scrollbar-track {
-    background: var(--infernal-dark) !important;
-}
-
-::-webkit-scrollbar-thumb {
-    background: linear-gradient(180deg, var(--infernal-red), var(--infernal-orange)) !important;
-    border-radius: 5px !important;
-}
-
-::-webkit-scrollbar-thumb:hover {
-    background: linear-gradient(180deg, var(--infernal-orange), var(--infernal-yellow)) !important;
-}
-
-/* === MODAL === */
-.modal-content, .modal-dialog .modal-content {
-    background: var(--infernal-card) !important;
-    border: 1px solid var(--infernal-orange) !important;
-    box-shadow: 0 0 30px rgba(255, 68, 0, 0.3) !important;
-}
-
-.modal-header {
-    border-bottom: 1px solid var(--infernal-border) !important;
-}
-
-.modal-title {
-    color: var(--infernal-orange) !important;
-}
-
-.modal-footer {
-    border-top: 1px solid var(--infernal-border) !important;
-}
-
-/* === LOGIN === */
-.login-box, .register-box {
-    background: var(--infernal-card) !important;
-    border: 1px solid var(--infernal-orange) !important;
-    border-radius: 12px !important;
-    box-shadow: 0 0 40px rgba(255, 68, 0, 0.2) !important;
-    backdrop-filter: blur(10px) !important;
-}
-
-.login-logo a, .register-logo a {
-    color: var(--infernal-orange) !important;
-    text-shadow: 0 0 15px var(--infernal-glow) !important;
-    font-size: 28px !important;
-}
-
-/* === PROGRESS BAR === */
-.progress {
-    background: var(--infernal-dark) !important;
-    border: 1px solid var(--infernal-border) !important;
-    border-radius: 4px !important;
-}
-
-.progress-bar {
-    background: linear-gradient(90deg, var(--infernal-red), var(--infernal-orange), var(--infernal-yellow)) !important;
-    box-shadow: 0 0 10px var(--infernal-glow) !important;
-}
-
-/* === DROPDOWN === */
-.dropdown-menu {
-    background: var(--infernal-dark) !important;
-    border: 1px solid var(--infernal-border) !important;
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.6) !important;
-}
-
-.dropdown-menu > li > a, .dropdown-item {
-    color: var(--infernal-text) !important;
-}
-
-.dropdown-menu > li > a:hover, .dropdown-item:hover {
-    background: rgba(255, 68, 0, 0.15) !important;
-    color: var(--infernal-yellow) !important;
-}
-
-/* === TABS / PILLS === */
-.nav-tabs > li > a, .nav-pills > li > a {
-    color: var(--infernal-text) !important;
-    border: 1px solid transparent !important;
-}
-
-.nav-tabs > li.active > a, .nav-pills > li.active > a {
-    background: var(--infernal-card) !important;
-    border: 1px solid var(--infernal-orange) !important;
-    color: var(--infernal-orange) !important;
-}
-
-/* === PAGINATION === */
-.pagination > li > a, .pagination > li > span {
-    background: var(--infernal-dark) !important;
-    border: 1px solid var(--infernal-border) !important;
-    color: var(--infernal-text) !important;
-}
-
-.pagination > li > a:hover {
-    background: rgba(255, 68, 0, 0.15) !important;
-    border-color: var(--infernal-orange) !important;
-    color: var(--infernal-yellow) !important;
-}
-
-.pagination > .active > a {
-    background: linear-gradient(135deg, var(--infernal-red), var(--infernal-orange)) !important;
-    border-color: var(--infernal-orange) !important;
-}
-
-/* === TEXTOS === */
-h1, h2, h3, h4, h5, h6 {
-    color: var(--infernal-orange) !important;
-    text-shadow: 0 0 5px rgba(255, 68, 0, 0.2) !important;
-}
-
-a {
-    color: var(--infernal-orange) !important;
-    transition: all 0.3s ease !important;
-}
-
-a:hover {
-    color: var(--infernal-yellow) !important;
-    text-shadow: 0 0 8px var(--infernal-glow) !important;
-}
-
-.text-muted {
-    color: rgba(255, 204, 136, 0.5) !important;
-}
-
-/* === CONSOLE TERMINAL === */
-.console-output, .terminal-output, pre {
-    background: #000 !important;
-    color: var(--infernal-orange) !important;
-    border: 1px solid var(--infernal-border) !important;
-    font-family: 'Consolas', 'Courier New', monospace !important;
-    text-shadow: 0 0 5px rgba(255, 102, 0, 0.3) !important;
-}
-
-/* === SERVER CARDS === */
-.server-card, .server-box {
-    border: 1px solid var(--infernal-border) !important;
-    background: var(--infernal-card) !important;
-    transition: all 0.3s ease !important;
-}
-
-.server-card:hover {
-    border-color: var(--infernal-red) !important;
-    box-shadow: 0 0 25px rgba(255, 51, 0, 0.3) !important;
-    transform: translateY(-2px) !important;
-}
-
-/* === EMOJI FIRE ICON === */
-.login-logo a::before {
-    content: "🔥 ";
-}
-
-/* === ANIMACIÓN PULSO PARA ELEMENTOS IMPORTANTES === */
-@keyframes infernal-pulse {
-    0%, 100% { box-shadow: 0 0 10px rgba(255, 68, 0, 0.3); }
-    50% { box-shadow: 0 0 20px rgba(255, 68, 0, 0.6); }
-}
-
-.btn-primary, .login-box {
-    animation: infernal-pulse 3s ease-in-out infinite;
-}
-
-/* === RESPONSIVE === */
-@media (max-width: 768px) {
-    .login-box, .register-box {
-        margin: 20px !important;
-    }
 }
